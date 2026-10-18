@@ -1,8 +1,33 @@
-# IBM Data Divas: DocTest
+# DART: Database-Aware Requirements-to-Tests via AI-Driven Scenario Extraction and Constraint-Preserving SQL Generation
 
-A web app that turns requirement documents into test scenarios (Phase 1) and shows the SQL test cases
-generated from them (Phase 2). These steps take you from a fresh computer to the app running in your
-browser.
+**SheQL, The University of Texas at Dallas**: Hridya Dhulipala, Raya Jahan, Jannatul Jannati, Afra Nawar, Tasfia Tasnim
+
+DART turns requirement documents into test scenarios (Phase 1) and shows the database-aware SQL test
+cases generated from them (Phase 2).
+
+## The problem
+
+Turning requirements into database tests takes more than understanding the text:
+
+![Three challenges: scenario extraction, database-aware generation, verifiable test outcomes](docs/images/dart-challenges.png)
+
+## How DART works
+
+![DART pipeline: requirement documents and schema go through scenario extraction, SQL generation, isolated execution and oracle-based validation, ending in a validation report](docs/images/dart-pipeline.jpg)
+
+1. **LLM-based scenario extraction** (Phase 1, `doctest/`): reads the requirement documents and writes test
+   scenarios with preconditions, operations, expected results and the source text they came from.
+2. **Schema-aware SQL generation** (Phase 2, `DBMS_testgen/`): turns each scenario into a test case with
+   setup SQL, configuration, test queries and expected outputs, using the Northwind schema and its constraints.
+3. **Isolated database execution**: runs each test on a fresh Northwind database (PostgreSQL on IBM LinuxONE).
+4. **Oracle-based validation**: compares actual results with expected ones, checks assertions and
+   constraints, and records SQL errors, producing pass/fail results with failure details.
+
+The web UI in `ui/` shows the results of steps 1 and 2. It does not connect to a database or run SQL.
+
+# How to run
+
+These steps take you from a fresh computer to the app running in your browser.
 
 ## What you need
 
@@ -123,19 +148,6 @@ instantly, and works even without Ollama.
 - **Stop** the app: press `Ctrl+C` in the terminal where it's running.
 - **Start again later**: you don't need to repeat Steps 1–3. Open a terminal in the project folder, make sure
   Ollama is running, and run the Step 4 command.
-
-## If something goes wrong
-
-| Problem | Fix |
-|---|---|
-| `python3: command not found` | Install Python (see "What you need"). On Windows, use `python`. |
-| `No such file or directory: .venv/bin/...` | You're in the wrong folder, or Step 2 didn't finish. `cd` into the project folder and redo Step 2. |
-| `Address already in use` | That port is taken. Use another one, for example `PORT=5051`. |
-| `doctest check` or **Run Phase 1** fails with a connection error | Ollama isn't running. Open the Ollama app or run `ollama serve`. |
-| `model not found` | Run `ollama pull qwen2.5:7b-instruct`. |
-| `ModuleNotFoundError` | Always run with `.venv/bin/python`, not plain `python3`. If it still fails, redo Step 2. |
-| **Run Phase 2** fails | The Phase 2 generator isn't included yet. Use **Reload file** to see the existing test cases. |
-| Page doesn't load | Check that the terminal from Step 4 is still open and that the port in the address matches. |
 
 More detail: [ui/README.md](ui/README.md) covers the UI and [doctest/README.md](doctest/README.md)
 covers the Phase 1 pipeline.
