@@ -1,0 +1,339 @@
+[
+ {
+  "scenario_id": "req-0001",
+  "feature": "SQL: INNER JOIN: Returns all orders",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that an inner join from orders to customers returns all 830 orders.",
+   "sql_sketch": "SELECT COUNT(*) FROM orders INNER JOIN customers ON orders.customer_id = customers.customer_id;",
+   "property": "The result should be 830."
+  },
+  "expected_result": {
+   "kind": "scalar",
+   "assertions": [
+    "The result is 830."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "northwind_requirements#pg6p26",
+    "span": "REQ-SQL-06 An inner join from orders to customers shall return all 830 orders, because no order has a NULL customer."
+   }
+  ],
+  "related_scenarios": [
+   "req-0002",
+   "req-0003",
+   "req-0004",
+   "req-0005",
+   "req-0006"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0002",
+  "feature": "SQL: INNER JOIN: Returning all orders",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that the SQL query returns the company_name for each customer with at least one order.",
+   "sql_sketch": "SELECT customers.customer_id, customers.company_name, COUNT(orders.order_id) AS order_count FROM customers INNER JOIN orders ON customers.customer_id = orders.customer_id GROUP BY customers.customer_id, customers.company_name",
+   "property": "The result set contains the correct company_name for each customer with at least one order."
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result set contains rows for each customer with at least one order.",
+    "Each row contains the correct company_name for the customer.",
+    "The order_count is the number of orders for the customer."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "The lookup returns customer_id, company_name, and order_count for each selected customer."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "An order belongs to a customer only when orders.customer_id equals customers.customer_id."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0003",
+   "req-0004",
+   "req-0005",
+   "req-0006"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0003",
+  "feature": "SQL: INNER JOIN: order_count for each selected customer",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that the SQL query returns the correct order_count for each selected customer.",
+   "sql_sketch": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+   "property": "The order_count for each customer is correct"
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "A customer with no matching orders remains in the result with order_count = 0",
+    "Several matching order rows produce one customer row and count each order exactly once"
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "The lookup returns customer_id, company_name, and order_count for each selected customer."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0004",
+   "req-0005",
+   "req-0006"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0004",
+  "feature": "SQL JOIN: order_count counted exactly once",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that each order is counted exactly once in the result set.",
+   "sql_sketch": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+   "property": "Each order is counted exactly once"
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result set contains rows for all customers, including those with no orders.",
+    "The order_count for each customer is the number of orders they have, with no duplicates."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "Several matching order rows produce one customer row and count each order exactly once."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0003",
+   "req-0005",
+   "req-0006"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0005",
+  "feature": "SQL: LEFT JOIN with NULL customer_id",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that a customer with no matching orders is returned with order_count = 0.",
+   "sql_sketch": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+   "property": "The result includes a row for a customer with no matching orders, setting order_count to 0."
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result set includes a row for a customer with no matching orders, setting order_count to 0."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0.S"
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "Several matching order rows produce one customer row and count each order exactly once. A"
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0003",
+   "req-0004",
+   "req-0006"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0006",
+  "feature": "SQL: LEFT JOIN; customer_id relationship",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that a lookup with a left join from customers to orders does not return a row for an absent customer_id.",
+   "sql_sketch": "SELECT customers.customer_id, customers.company_name, COUNT(orders.order_id) AS order_count FROM customers LEFT JOIN orders ON customers.customer_id = orders.customer_id GROUP BY customers.customer_id, customers.company_name",
+   "property": "The result set should not contain any rows for an absent customer_id."
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result set should not contain any rows for an absent customer_id."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "An absent customer_id returns no row and does not synthesize a customer or order count."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0003",
+   "req-0004",
+   "req-0005"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0007",
+  "feature": "JOIN: uses the relationship between customers.customer_id and orders.customer_id",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that the join uses the relationship between customers.customer_id and orders.customer_id to return the correct order_count for each customer.",
+   "sql_sketch": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+   "property": "The result should include all customers, with order_count = 0 for customers with no orders."
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result set includes all customers from the customers table.",
+    "For each customer, the order_count is 0 if the customer has no orders."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "The lookup returns customer_id, company_name, and order_count for each selected customer."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0003",
+   "req-0004",
+   "req-0005"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ },
+ {
+  "scenario_id": "req-0008",
+  "feature": "SQL JOIN: left join from customers to orders",
+  "category": "normal",
+  "precondition": {
+   "schema": [],
+   "data": {},
+   "config": [],
+   "session_state": null
+  },
+  "behavior_under_test": {
+   "description": "Test that a left join from customers to orders returns customers with no matching orders as rows with order_count = 0.",
+   "sql_sketch": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+   "property": "The result contains customers with no orders and order_count = 0."
+  },
+  "expected_result": {
+   "kind": "result_set",
+   "assertions": [
+    "The result contains a row for a customer with no orders and order_count = 0."
+   ],
+   "order_sensitive_rows": false
+  },
+  "evidence": [
+   {
+    "chunk": "requirement_test#req1",
+    "span": "A customer with no matching orders remains in the result with order_count = 0."
+   },
+   {
+    "chunk": "requirement_test#req1",
+    "span": "Several matching order rows produce one customer row and count each order exactly once."
+   }
+  ],
+  "related_scenarios": [
+   "req-0001",
+   "req-0002",
+   "req-0003",
+   "req-0004",
+   "req-0005"
+  ],
+  "ambiguities": [],
+  "confidence": 0.85
+ }
+]

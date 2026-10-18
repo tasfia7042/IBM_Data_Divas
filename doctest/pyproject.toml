@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "doctestlx"
+version = "0.1.0"
+description = "DocTest: PostgreSQL docs -> requirements -> test scenarios"
+requires-python = ">=3.10"
+dependencies = [
+  "openai>=1.0",
+  "pydantic>=2",
+  "beautifulsoup4",
+  "lxml",
+  "requests",
+  "rank_bm25",
+  "pyyaml",
+  "typer",
+  "tqdm",
+  "rapidfuzz",
+  "json-repair",
+]
+
+[project.optional-dependencies]
+pdf = ["pdfplumber"]   # pip install -e '.[pdf]' to import PDF docs
+
+[project.scripts]
+doctest = "doctestlx.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"doctestlx.prompts" = ["*.md"]

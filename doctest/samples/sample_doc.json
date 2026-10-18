@@ -1,0 +1,48 @@
+{
+  "page": "functions-json",
+  "source": "https://www.postgresql.org/docs/16/functions-json.html",
+  "sections": [
+    {
+      "id": "t1r1",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.45. json and jsonb Operators",
+      "type": "table_row",
+      "content": "json -> integer → json | jsonb -> integer → jsonb | Extracts n'th element of JSON array (array elements are indexed from zero, but negative integers count from the end). | '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json -> 2 → {\"c\":\"baz\"} | '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json -> -3 → {\"a\":\"foo\"}"
+    },
+    {
+      "id": "t1r3",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.45. json and jsonb Operators",
+      "type": "table_row",
+      "content": "json ->> integer → text | jsonb ->> integer → text | Extracts n'th element of JSON array, as text. | '[1,2,3]'::json ->> 2 → 3"
+    },
+    {
+      "id": "t5r3",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_array_length ( json ) → integer | jsonb_array_length ( jsonb ) → integer | Returns the number of elements in the top-level JSON array. | json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]') → 5 | jsonb_array_length('[]') → 0"
+    },
+    {
+      "id": "t5r13",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "jsonb_set ( target jsonb, path text[], new_value jsonb [, create_if_missing boolean ] ) → jsonb | Returns target with the item designated by path replaced by new_value, or with new_value added if create_if_missing is true (which is the default) and the item designated by path does not exist. All earlier steps in the path must exist, or the target is returned unchanged. As with the path oriented operators, negative integers that appear in the path count from the end of JSON arrays. If the last path step is an array index that is out of range, and create_if_missing is true, the new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive. | jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3] | jsonb_set('[{\"f1\":1,\"f2\":null},2]', '{0,f3}', '[2,3,4]') → [{\"f1\": 1, \"f2\": null, \"f3\": [2, 3, 4]}, 2]"
+    },
+    {
+      "id": "t5r16",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_strip_nulls ( json ) → json | jsonb_strip_nulls ( jsonb ) → jsonb | Deletes all object fields that have null values from the given JSON value, recursively. Null values that are not object fields are untouched. | json_strip_nulls('[{\"f1\":1, \"f2\":null}, 2, null, 3]') → [{\"f1\":1},2,null,3]"
+    },
+    {
+      "id": "t5r24",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_typeof ( json ) → text | jsonb_typeof ( jsonb ) → text | Returns the type of the top-level JSON value as a text string. Possible types are object, array, string, number, boolean, and null. (The null result should not be confused with an SQL NULL; see the examples.) | json_typeof('-123.4') → number | json_typeof('null'::json) → null | json_typeof(NULL::json) IS NULL → t"
+    },
+    {
+      "id": "p11",
+      "section": "9.16.1. Processing and Creating JSON Data",
+      "type": "paragraph",
+      "content": "The jsonpath operators @? and @@ suppress the following errors: missing object field or array element, unexpected JSON item type, datetime and numeric errors. The jsonpath-related functions described below can also be told to suppress these types of errors. This behavior might be helpful when searching JSON document collections of varying structure."
+    }
+  ]
+}

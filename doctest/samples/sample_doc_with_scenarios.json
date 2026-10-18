@@ -1,0 +1,1038 @@
+{
+  "page": "functions-json",
+  "source": "https://www.postgresql.org/docs/16/functions-json.html",
+  "sections": [
+    {
+      "id": "t1r1",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.45. json and jsonb Operators",
+      "type": "table_row",
+      "content": "json -> integer → json | jsonb -> integer → jsonb | Extracts n'th element of JSON array (array elements are indexed from zero, but negative integers count from the end). | '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json -> 2 → {\"c\":\"baz\"} | '[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'::json -> -3 → {\"a\":\"foo\"}"
+    },
+    {
+      "id": "t1r3",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.45. json and jsonb Operators",
+      "type": "table_row",
+      "content": "json ->> integer → text | jsonb ->> integer → text | Extracts n'th element of JSON array, as text. | '[1,2,3]'::json ->> 2 → 3"
+    },
+    {
+      "id": "t5r3",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_array_length ( json ) → integer | jsonb_array_length ( jsonb ) → integer | Returns the number of elements in the top-level JSON array. | json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]') → 5 | jsonb_array_length('[]') → 0"
+    },
+    {
+      "id": "t5r13",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "jsonb_set ( target jsonb, path text[], new_value jsonb [, create_if_missing boolean ] ) → jsonb | Returns target with the item designated by path replaced by new_value, or with new_value added if create_if_missing is true (which is the default) and the item designated by path does not exist. All earlier steps in the path must exist, or the target is returned unchanged. As with the path oriented operators, negative integers that appear in the path count from the end of JSON arrays. If the last path step is an array index that is out of range, and create_if_missing is true, the new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive. | jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3] | jsonb_set('[{\"f1\":1,\"f2\":null},2]', '{0,f3}', '[2,3,4]') → [{\"f1\": 1, \"f2\": null, \"f3\": [2, 3, 4]}, 2]"
+    },
+    {
+      "id": "t5r16",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_strip_nulls ( json ) → json | jsonb_strip_nulls ( jsonb ) → jsonb | Deletes all object fields that have null values from the given JSON value, recursively. Null values that are not object fields are untouched. | json_strip_nulls('[{\"f1\":1, \"f2\":null}, 2, null, 3]') → [{\"f1\":1},2,null,3]"
+    },
+    {
+      "id": "t5r24",
+      "section": "9.16.1. Processing and Creating JSON Data / Table 9.49. JSON Processing Functions",
+      "type": "table_row",
+      "content": "json_typeof ( json ) → text | jsonb_typeof ( jsonb ) → text | Returns the type of the top-level JSON value as a text string. Possible types are object, array, string, number, boolean, and null. (The null result should not be confused with an SQL NULL; see the examples.) | json_typeof('-123.4') → number | json_typeof('null'::json) → null | json_typeof(NULL::json) IS NULL → t"
+    },
+    {
+      "id": "p11",
+      "section": "9.16.1. Processing and Creating JSON Data",
+      "type": "paragraph",
+      "content": "The jsonpath operators @? and @@ suppress the following errors: missing object field or array element, unexpected JSON item type, datetime and numeric errors. The jsonpath-related functions described below can also be told to suppress these types of errors. This behavior might be helpful when searching JSON document collections of varying structure."
+    }
+  ],
+  "requirements": [
+    {
+      "req_id": "req-001",
+      "chunk_id": "functions-json#t1r1",
+      "text": "json -> integer → json | jsonb -> integer → jsonb | Extracts n'th element of JSON array (array elements are indexed from zero, but negative integers count from the end).",
+      "feature": "->",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0001"
+      ]
+    },
+    {
+      "req_id": "req-002",
+      "chunk_id": "functions-json#t1r3",
+      "text": "json ->> integer → text | jsonb ->> integer → text | Extracts n'th element of JSON array, as text. | '[1,2,3]'::json ->> 2 → 3",
+      "feature": "->>",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0002"
+      ]
+    },
+    {
+      "req_id": "req-003",
+      "chunk_id": "functions-json#t5r3",
+      "text": "json_array_length ( json ) → integer | jsonb_array_length ( jsonb ) → integer | Returns the number of elements in the top-level JSON array.",
+      "feature": "json_array_length",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0003"
+      ]
+    },
+    {
+      "req_id": "req-004",
+      "chunk_id": "functions-json#t5r3",
+      "text": "json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]') → 5",
+      "feature": "json_array_length",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0004"
+      ]
+    },
+    {
+      "req_id": "req-005",
+      "chunk_id": "functions-json#t5r3",
+      "text": "jsonb_array_length('[]') → 0",
+      "feature": "jsonb_array_length",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0005"
+      ]
+    },
+    {
+      "req_id": "req-006",
+      "chunk_id": "functions-json#t5r13",
+      "text": "jsonb_set ( target jsonb, path text[], new_value jsonb [, create_if_missing boolean ] ) → jsonb | Returns target with the item designated by path replaced by new_value, or with new_value added if create_if_missing is true (which is the default) and the item designated by path does not exist.",
+      "feature": "jsonb_set",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0006"
+      ]
+    },
+    {
+      "req_id": "req-007",
+      "chunk_id": "functions-json#t5r13",
+      "text": "All earlier steps in the path must exist, or the target is returned unchanged.",
+      "feature": "jsonb_set",
+      "category": "boundary",
+      "scenario_ids": [
+        "json-0007"
+      ]
+    },
+    {
+      "req_id": "req-008",
+      "chunk_id": "functions-json#t5r13",
+      "text": "As with the path oriented operators, negative integers that appear in the path count from the end of JSON arrays.",
+      "feature": "jsonb_set",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0008"
+      ]
+    },
+    {
+      "req_id": "req-009",
+      "chunk_id": "functions-json#t5r13",
+      "text": "If the last path step is an array index that is out of range, and create_if_missing is true, the new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive.",
+      "feature": "jsonb_set",
+      "category": "boundary",
+      "scenario_ids": [
+        "json-0009"
+      ]
+    },
+    {
+      "req_id": "req-010",
+      "chunk_id": "functions-json#t5r16",
+      "text": "json_strip_nulls ( json ) → json | jsonb_strip_nulls ( jsonb ) → jsonb | Deletes all object fields that have null values from the given JSON value, recursively. Null values that are not object fields are untouched.",
+      "feature": "json_strip_nulls",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0010"
+      ]
+    },
+    {
+      "req_id": "req-011",
+      "chunk_id": "functions-json#t5r24",
+      "text": "json_typeof ( json ) → text | jsonb_typeof ( jsonb ) → text | Returns the type of the top-level JSON value as a text string. Possible types are object, array, string, number, boolean, and null.",
+      "feature": "json_typeof",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0011"
+      ]
+    },
+    {
+      "req_id": "req-012",
+      "chunk_id": "functions-json#t5r24",
+      "text": "json_typeof('-123.4') → number",
+      "feature": "json_typeof",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0012"
+      ]
+    },
+    {
+      "req_id": "req-013",
+      "chunk_id": "functions-json#t5r24",
+      "text": "json_typeof('null'::json) → null",
+      "feature": "json_typeof",
+      "category": "normal",
+      "scenario_ids": [
+        "json-0013"
+      ]
+    },
+    {
+      "req_id": "req-014",
+      "chunk_id": "functions-json#t5r24",
+      "text": "json_typeof(NULL::json) IS NULL → t",
+      "feature": "json_typeof",
+      "category": "boundary",
+      "scenario_ids": [
+        "json-0014"
+      ]
+    },
+    {
+      "req_id": "req-015",
+      "chunk_id": "functions-json#p11",
+      "text": "The jsonpath operators @? and @@ suppress the following errors: missing object field or array element, unexpected JSON item type, datetime and numeric errors.",
+      "feature": "jsonpath operators @? and @@",
+      "category": "error",
+      "scenario_ids": [
+        "json-0015"
+      ]
+    }
+  ],
+  "scenarios": [
+    {
+      "scenario_id": "json-0001",
+      "feature": "json -> integer: Extracts n'th element of JSON array",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Extract the second element from a JSON array",
+        "sql_sketch": "'[\"a\", \"b\", \"c\"]'::json -> 1",
+        "property": "The result should be the second element of the array"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is 'b'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [],
+      "related_scenarios": [],
+      "ambiguities": [
+        "evidence span not found in docs: '[\\\"a\\\", \\\"b\\\", \\\"c\\\"]'::json -> 1 → \\\"b\\\"",
+        "evidence not found in docs"
+      ],
+      "confidence": 0.55
+    },
+    {
+      "scenario_id": "json-0002",
+      "feature": "json ->> integer: Extracts n'th element of JSON array as text",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the extraction of the 2nd element from a JSON array as text",
+        "sql_sketch": "'[1,2,3]'::json ->> 2",
+        "property": "The result should be the text representation of the 2nd element in the array"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is '3'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t1r3",
+          "span": "'[1,2,3]'::json ->> 2 → 3"
+        }
+      ],
+      "related_scenarios": [],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0003",
+      "feature": "json_array_length: returns the number of elements in the top-level JSON array",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the json_array_length function with a JSON array containing multiple elements",
+        "sql_sketch": "SELECT json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]')",
+        "property": "The result should be an integer representing the number of elements in the array"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is 5"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r3",
+          "span": "json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]') → 5"
+        }
+      ],
+      "related_scenarios": [
+        "json-0004",
+        "json-0005"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0004",
+      "feature": "json_array_length: returns the number of elements in the top-level JSON array",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the json_array_length function with a valid JSON array",
+        "sql_sketch": "json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]')",
+        "property": "returns the correct number of elements in the JSON array"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = 5"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r3",
+          "span": "json_array_length('[1,2,3,{\"f1\":1,\"f2\":[5,6]},4]') → 5"
+        }
+      ],
+      "related_scenarios": [
+        "json-0003",
+        "json-0005"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0005",
+      "feature": "jsonb_array_length: returns the number of elements in the top-level JSON array",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the jsonb_array_length function with an empty JSON array",
+        "sql_sketch": "jsonb_array_length('[]')",
+        "property": "returns the correct number of elements in the array"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = 0"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r3",
+          "span": "jsonb_array_length('[]') → 0"
+        }
+      ],
+      "related_scenarios": [
+        "json-0003",
+        "json-0004"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0006",
+      "feature": "jsonb_set: replacing a value in a JSONB object",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the jsonb_set function to replace a value in a JSONB object",
+        "sql_sketch": "SELECT jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false)",
+        "property": ""
+      },
+      "expected_result": {
+        "kind": "result_set",
+        "assertions": [
+          "The result is [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3]"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3]"
+        }
+      ],
+      "related_scenarios": [
+        "json-0007",
+        "json-0008",
+        "json-0009",
+        "json-0015"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0007",
+      "feature": "jsonb_set: path must exist",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test that if a path in jsonb_set does not exist, the target is returned unchanged.",
+        "sql_sketch": "SELECT jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false)",
+        "property": ""
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = '[{\"f1\": 1, \"f2\": null}, 2]'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "All earlier steps in the path must exist, or the target is returned unchanged."
+        },
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2]', '{0,f3}', '[2,3,4]') → [{\"f1\": 1, \"f2\": null, \"f3\": [2, 3, 4]}, 2]"
+        }
+      ],
+      "related_scenarios": [
+        "json-0006",
+        "json-0008",
+        "json-0009",
+        "json-0015"
+      ],
+      "ambiguities": [],
+      "confidence": 0.85
+    },
+    {
+      "scenario_id": "json-0008",
+      "feature": "jsonb_set: handling of negative integers in path",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the behavior of jsonb_set with a negative integer in the path, ensuring it counts from the end of the JSON array.",
+        "sql_sketch": "SELECT jsonb_set('[1,2,3,4]', '{-2}', 'x')",
+        "property": "The result should be '[1,2,x,4]'"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is '[1,2,\"x\",4]'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "As with the path oriented operators, negative integers that appear in the path count from the end of JSON arrays."
+        },
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3]"
+        }
+      ],
+      "related_scenarios": [
+        "json-0006",
+        "json-0007",
+        "json-0009",
+        "json-0015"
+      ],
+      "ambiguities": [],
+      "confidence": 0.85
+    },
+    {
+      "scenario_id": "json-0009",
+      "feature": "jsonb_set: behavior when creating array elements with out-of-range indices",
+      "category": "boundary",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the behavior of jsonb_set when the last path step is an out-of-range array index and create_if_missing is true.",
+        "sql_sketch": "SELECT jsonb_set('[1,2,3]', '{2,4}', '42', true)",
+        "property": "The new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive."
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is '[1,2,3,42]'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "If the last path step is an array index that is out of range, and create_if_missing is true, the new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive."
+        },
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3]"
+        }
+      ],
+      "related_scenarios": [
+        "json-0006",
+        "json-0007",
+        "json-0008",
+        "json-0015"
+      ],
+      "ambiguities": [],
+      "confidence": 0.85
+    },
+    {
+      "scenario_id": "json-0010",
+      "feature": "json_strip_nulls: removes null values from JSON objects",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the removal of null values from a JSON array containing objects and other values",
+        "sql_sketch": "SELECT json_strip_nulls('[{\"f1\":1, \"f2\":null}, 2, null, 3]')",
+        "property": "The result should be a JSON array with null values removed from object fields"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "The result is a JSON array: [{\"f1\":1},2,null,3]"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r16",
+          "span": "json_strip_nulls('[{\"f1\":1, \"f2\":null}, 2, null, 3]') → [{\"f1\":1},2,null,3]"
+        }
+      ],
+      "related_scenarios": [],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0011",
+      "feature": "json_typeof: returns the type of the top-level JSON value as a text string",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the json_typeof function with a JSON string representing an object",
+        "sql_sketch": "SELECT json_typeof('{\"key\": \"value\"}'::json)",
+        "property": "the result should be 'object'"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = 'object'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof('-123.4') → number"
+        },
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof('null'::json) → null"
+        },
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof(NULL::json) IS NULL → t"
+        }
+      ],
+      "related_scenarios": [
+        "json-0012",
+        "json-0013",
+        "json-0014"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0012",
+      "feature": "json_typeof: returns the type of the top-level JSON value",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the json_typeof function with a numeric JSON value",
+        "sql_sketch": "json_typeof('-123.4')",
+        "property": "returns the correct type as a text string"
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = 'number'"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof('-123.4') → number"
+        }
+      ],
+      "related_scenarios": [
+        "json-0011",
+        "json-0013",
+        "json-0014"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0013",
+      "feature": "json_typeof: null result for null JSON input",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the json_typeof function with a null JSON input to ensure it returns null.",
+        "sql_sketch": "SELECT json_typeof(null::json)",
+        "property": "The result should be null."
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "result = null"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof('null'::json) → null"
+        }
+      ],
+      "related_scenarios": [
+        "json-0011",
+        "json-0012",
+        "json-0014"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0014",
+      "feature": "json_typeof: behavior with NULL input",
+      "category": "normal",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the behavior of json_typeof when given a NULL json input.",
+        "sql_sketch": "SELECT json_typeof(NULL::json)",
+        "property": "The result should be NULL."
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "$1 IS NULL"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r24",
+          "span": "json_typeof(NULL::json) IS NULL → t"
+        }
+      ],
+      "related_scenarios": [
+        "json-0011",
+        "json-0012",
+        "json-0013"
+      ],
+      "ambiguities": [],
+      "confidence": 1.0
+    },
+    {
+      "scenario_id": "json-0015",
+      "feature": "jsonb_set: suppression of errors",
+      "category": "error",
+      "precondition": {
+        "schema": [],
+        "data": {},
+        "config": [],
+        "session_state": null
+      },
+      "behavior_under_test": {
+        "description": "Test the suppression of errors by jsonb_set when the last path step is an out-of-range array index and create_if_missing is false.",
+        "sql_sketch": "jsonb_set('[{\"f1\":1,\"f2\":null},2]', '{0,f3}', '[2,3,4]', false)",
+        "property": "The function should return the original JSON without modification."
+      },
+      "expected_result": {
+        "kind": "scalar",
+        "assertions": [
+          "'[{\"f1\": 1, \"f2\": null, \"f3\": [2, 3, 4]}, 2]' is not returned"
+        ],
+        "order_sensitive_rows": false
+      },
+      "evidence": [
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "If the last path step is an array index that is out of range, and create_if_missing is true, the new value is added at the beginning of the array if the index is negative, or at the end of the array if it is positive."
+        },
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2,null,3]', '{0,f1}', '[2,3,4]', false) → [{\"f1\": [2, 3, 4], \"f2\": null}, 2, null, 3]"
+        },
+        {
+          "chunk": "functions-json#t5r13",
+          "span": "jsonb_set('[{\"f1\":1,\"f2\":null},2]', '{0,f3}', '[2,3,4]') → [{\"f1\": 1, \"f2\": null, \"f3\": [2, 3, 4]}, 2]"
+        }
+      ],
+      "related_scenarios": [
+        "json-0006",
+        "json-0007",
+        "json-0008",
+        "json-0009"
+      ],
+      "ambiguities": [],
+      "confidence": 0.85
+    }
+  ],
+  "doctest": {
+    "generated_at": "2026-10-17T17:15:46-0500",
+    "model": "qwen2.5:7b-instruct",
+    "doc_source": "/Users/tasfiatasnim/Downloads/IBM_data_diva/doctest/samples/sample_doc.json",
+    "counts": {
+      "requirements": 15,
+      "scenarios": 15,
+      "scenarios_with_all_evidence_found": 14
+    },
+    "notes": "requirements[].text and scenarios[].evidence[].span are exact doc text. confidence is a heuristic from evidence found, documented example calls and ambiguities, not a probability.",
+    "requirement_schema": {
+      "properties": {
+        "req_id": {
+          "title": "Req Id",
+          "type": "string"
+        },
+        "chunk_id": {
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "feature": {
+          "title": "Feature",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "normal",
+            "boundary",
+            "error"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "scenario_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "req_id",
+        "chunk_id",
+        "text",
+        "feature",
+        "category"
+      ],
+      "title": "Requirement",
+      "type": "object"
+    },
+    "scenario_schema": {
+      "$defs": {
+        "BehaviorUnderTest": {
+          "properties": {
+            "description": {
+              "title": "Description",
+              "type": "string"
+            },
+            "sql_sketch": {
+              "title": "Sql Sketch",
+              "type": "string"
+            },
+            "property": {
+              "title": "Property",
+              "type": "string"
+            }
+          },
+          "required": [
+            "description",
+            "sql_sketch",
+            "property"
+          ],
+          "title": "BehaviorUnderTest",
+          "type": "object"
+        },
+        "Column": {
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string"
+            },
+            "type": {
+              "default": "",
+              "title": "Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "Column",
+          "type": "object"
+        },
+        "Evidence": {
+          "properties": {
+            "chunk": {
+              "title": "Chunk",
+              "type": "string"
+            },
+            "span": {
+              "title": "Span",
+              "type": "string"
+            }
+          },
+          "required": [
+            "chunk",
+            "span"
+          ],
+          "title": "Evidence",
+          "type": "object"
+        },
+        "ExpectedResult": {
+          "properties": {
+            "kind": {
+              "enum": [
+                "result_set",
+                "scalar",
+                "error",
+                "state_change"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "assertions": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Assertions",
+              "type": "array"
+            },
+            "order_sensitive_rows": {
+              "default": false,
+              "title": "Order Sensitive Rows",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "assertions"
+          ],
+          "title": "ExpectedResult",
+          "type": "object"
+        },
+        "Precondition": {
+          "properties": {
+            "schema": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/TableSchema"
+              },
+              "title": "Schema",
+              "type": "array"
+            },
+            "data": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "default": {},
+              "title": "Data",
+              "type": "object"
+            },
+            "config": {
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "title": "Config",
+              "type": "array"
+            },
+            "session_state": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Session State"
+            }
+          },
+          "title": "Precondition",
+          "type": "object"
+        },
+        "TableSchema": {
+          "properties": {
+            "table": {
+              "title": "Table",
+              "type": "string"
+            },
+            "columns": {
+              "default": [],
+              "items": {
+                "$ref": "#/$defs/Column"
+              },
+              "title": "Columns",
+              "type": "array"
+            }
+          },
+          "required": [
+            "table"
+          ],
+          "title": "TableSchema",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "scenario_id": {
+          "title": "Scenario Id",
+          "type": "string"
+        },
+        "feature": {
+          "title": "Feature",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "normal",
+            "boundary",
+            "error"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "precondition": {
+          "$ref": "#/$defs/Precondition"
+        },
+        "behavior_under_test": {
+          "$ref": "#/$defs/BehaviorUnderTest"
+        },
+        "expected_result": {
+          "$ref": "#/$defs/ExpectedResult"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "related_scenarios": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Related Scenarios",
+          "type": "array"
+        },
+        "ambiguities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Ambiguities",
+          "type": "array"
+        },
+        "confidence": {
+          "title": "Confidence",
+          "type": "number"
+        }
+      },
+      "required": [
+        "scenario_id",
+        "feature",
+        "category",
+        "precondition",
+        "behavior_under_test",
+        "expected_result",
+        "evidence",
+        "confidence"
+      ],
+      "title": "Scenario",
+      "type": "object"
+    }
+  }
+}

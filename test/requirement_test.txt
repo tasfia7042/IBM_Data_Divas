@@ -1,0 +1,15 @@
+A customer is identified by customers.customer_id.
+The lookup returns customer_id, company_name, and order_count for each selected customer. 
+An order belongs to a customer only when orders.customer_id equals customers.customer_id. The lookup must use this relationship rather than names. "A customer with no matching orders remains in the result with order_count = 0.Several matching order rows produce one customer row and count each order exactly once. An absent customer_id returns no row and does not synthesize a customer or order count. The lookup does not change customers or orders rows. The frozen schema supplies the customers primary key and orders.customer_id foreign key; no trigger is required. Tests may insert uniquely named customers and orders inside a transaction, then roll back; datathon_db is never modified.
+
+
+The lookup returns customer_id for each selected customer.
+The lookup returns company_name for each selected customer.
+The lookup returns order_count for each selected customer.
+The lookup counts each order exactly once.
+The lookup returns a row for a customer with no matching orders, setting order_count to 0.
+The lookup does not return a row for an absent customer_id.
+The lookup uses the relationship between customers.customer_id and orders.customer_id.
+The lookup does not change customers or orders rows.
+The schema is frozen; no trigger is required for the lookup.
+Tests insert uniquely named customers and orders inside a transaction that rolls back.

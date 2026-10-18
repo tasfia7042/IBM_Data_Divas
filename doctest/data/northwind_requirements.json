@@ -1,0 +1,585 @@
+{
+  "source": {
+    "pdf": "/Users/tasfiatasnim/Downloads/IBM_data_diva/test/northwind_requirements.pdf",
+    "pages": 11,
+    "converted_at": "2026-10-17T18:22:00"
+  },
+  "chunks": [
+    {
+      "chunk_id": "northwind_requirements#pg1p1",
+      "kind": "paragraph",
+      "heading": "Functional Requirements and Behavior Specification",
+      "text": "Version: 1.0 Target system: PostgreSQL 16 with the Northwind schema (northwind_psql) Scope: Expected functionality, supported SQL behaviors, boundary conditions, configuration options and user visible semantics Status: Every query result and error code in this document was executed and confirmed on PostgreSQL 16.15"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2p2",
+      "kind": "paragraph",
+      "heading": "1.1 Purpose",
+      "text": "This document is the central reference for the Northwind order management database. It states what the database stores, how it is expected to behave when queried and modified, which rules it enforces, where its limits are, and what each value means to a person reading the data. It is written so that test scenarios can be derived directly from its statements."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2p3",
+      "kind": "paragraph",
+      "heading": "1.2 Scope",
+      "text": "The specification covers the 14 tables of the Northwind schema, the integrity rules declared on them, the results of standard queries over the shipped sample data, the error behavior of invalid operations, the deployment settings in the provided Docker configuration, and the meaning of special values such as NULL dates and status flags. Application screens, reporting tools and performance targets are out of scope."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2p4",
+      "kind": "paragraph",
+      "heading": "1.3 Conventions",
+      "text": "• Each requirement has an identifier such as REQ-ORD-03 . The prefix names the area of the system. • Requirements marked [Enforced] are either guaranteed by the database through a key, a NOT NULL rule, a data type or a foreign key, in which case a violation is rejected with an error, or are fixed facts of the shipped sample data that a query confirms. • Requirements marked [Expected] are business rules that the data follows but the database does not check. A violating statement is accepted, so any process that writes data must enforce these rules itself. • Error outcomes are given as PostgreSQL SQLSTATE codes, for example 23505 for a duplicate key. • Example result values are shown exactly as PostgreSQL returns them for the shipped sample data."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2p5",
+      "kind": "paragraph",
+      "heading": "2. System Overview",
+      "text": "Northwind models a small food import and export company. Customers place orders, each order is taken by an employee, contains one or more product lines and is delivered by a shipper. Products belong to categories and are supplied by suppliers. Employees are assigned to sales territories, which are grouped into regions. REQ-SYS-01 The database shall run on PostgreSQL version 16 and shall be created entirely from the single script northwind.sql . [Expected] REQ-SYS-02 After the script is loaded, the database shall contain exactly the 14 tables and row counts listed in Table 1. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2t1r2",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "categories | 8 | Product groups such as Beverages and Seafood"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2t1r3",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "products | 77 | Items for sale with price, stock and status"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2t1r4",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "suppliers | 29 | Companies that supply products"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg2t1r5",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "customers | 91 | Companies that place orders"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r2",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "orders | 830 | Order headers with dates, shipper and delivery address"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r3",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "order_details | 2155 | Order lines: one product per line"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r4",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "employees | 9 | Sales staff with a reporting hierarchy"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r6",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "region | 4 | Eastern, Western, Northern, Southern"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r7",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "territories | 53 | Sales territories, each in one region"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r8",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "employee_territories | 49 | Assignment of employees to territories"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r9",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "us_states | 51 | Reference list of US states"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r10",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "customer_demographics | 0 | Customer type definitions (empty)"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3t2r11",
+      "kind": "table_row",
+      "heading": "2. System Overview",
+      "text": "customer_customer_demo | 0 | Customer to type mapping (empty)"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3p6",
+      "kind": "paragraph",
+      "heading": "2. System Overview",
+      "text": "REQ-SYS-03 The sample orders shall cover order dates from 1996-07-04 to 1998-05-06, with 152 orders in 1996, 408 in 1997 and 270 in 1998. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3p7",
+      "kind": "paragraph",
+      "heading": "3.1 Categories and Products",
+      "text": "REQ-PRD-01 Every product shall have a unique product_id and a product_name that is not NULL and is at most 40 characters long. An empty name is not NULL, so the database accepts it. [Enforced] REQ-PRD-02 When category_id or supplier_id is set, it shall reference an existing category or supplier. Inserting a product with category_id 99 shall fail with SQLSTATE 23503 . Both columns allow NULL, so a product with no category is accepted, although every sample product has both."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3p8",
+      "kind": "paragraph",
+      "heading": "3.1 Categories and Products",
+      "text": "REQ-PRD-03 The discontinued column shall hold 1 for a product that is no longer sold and 0 for an active product. The sample data contains 67 active and 10 discontinued products. [Expected] REQ-PRD-04 Unit prices shall be positive. In the sample data the cheapest product costs 2.5 and the most expensive, Côte de Blaye, costs 263.5. The average product price is 28.8339. [Expected] REQ-PRD-05 A product whose units_in_stock is below its reorder_level needs restocking. The sample data contains 18 such products, and 5 products have zero units in stock. [Expected] REQ-PRD-06 The number of products per category shall be: Beverages 12, Condiments 12, Confections 13, Dairy Products 10, Grains/Cereals 7, Meat/Poultry 6, Produce 5, Seafood 12."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3p9",
+      "kind": "paragraph",
+      "heading": "3.1 Categories and Products",
+      "text": "REQ-PRD-07 Category names shall be at most 15 characters long. Inserting the category name Fresh Bakery Goods (18 characters) shall fail with SQLSTATE 22001 . Names are unique in the sample data, but the database does not require uniqueness. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg3p10",
+      "kind": "paragraph",
+      "heading": "3.2 Suppliers",
+      "text": "REQ-SUP-01 Every supplier shall have a unique supplier_id and a company_name of at most 40 characters. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p11",
+      "kind": "paragraph",
+      "heading": "3.2 Suppliers",
+      "text": "REQ-SUP-02 A supplier that is referenced by at least one product shall not be deletable while that reference exists. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p12",
+      "kind": "paragraph",
+      "heading": "3.3 Customers",
+      "text": "REQ-CUS-01 Every customer shall be identified by a customer_id of at most 5 characters, for example ALFKI . An identifier of 6 characters such as ABCDEF shall be rejected with SQLSTATE 22001 ."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p13",
+      "kind": "paragraph",
+      "heading": "3.3 Customers",
+      "text": "REQ-CUS-02 Customer identifiers shall be compared case sensitively. Searching orders for ALFKI shall return 6 orders, while searching for alfki shall return 0. [Enforced] REQ-CUS-03 Customer identifiers are conventionally written in upper case. The database does not check this, so inserting a customer with identifier alfki is accepted as a separate customer."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p14",
+      "kind": "paragraph",
+      "heading": "3.3 Customers",
+      "text": "REQ-CUS-04 A customer with at least one order shall not be deletable. Deleting customer ALFKI shall fail with SQLSTATE 23503 . A customer with no orders, such as FISSA , shall be deletable."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p15",
+      "kind": "paragraph",
+      "heading": "3.3 Customers",
+      "text": "REQ-CUS-05 Exactly two customers, FISSA and PARIS , shall have no orders. The remaining 89 customers each have at least one order. [Enforced] REQ-CUS-06 Customers are located in 21 countries. The countries with the most customers are USA with 13, Germany with 11 and France with 11. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p16",
+      "kind": "paragraph",
+      "heading": "3.4 Employees and Territories",
+      "text": "REQ-EMP-01 Every employee shall have a unique employee_id , a last_name of at most 20 characters and a first_name of at most 10 characters. [Enforced] REQ-EMP-02 The reports_to column shall reference the manager of the employee. A value that does not match an existing employee, such as 99, shall be rejected with SQLSTATE 23503 . [Enforced] REQ-EMP-03 Exactly one employee, Andrew Fuller (Vice President, Sales), shall have no manager, shown by a NULL reports_to . Employees 1, 3, 4, 5 and 8 report to employee 2, and employees 6, 7 and 9 report to employee 5. [Enforced] REQ-EMP-04 An employee who manages other employees or who has taken orders shall not be deletable. Deleting employee 2 shall fail with SQLSTATE 23503 . [Enforced] REQ-EMP-05 Each territory shall belong to exactly one region. Region Eastern has 19 territories, Western 15, Northern 11 and Southern 8. Deleting a region that has territories shall fail with SQLSTATE 23503 . [Enforced] REQ-EMP-06 Every one of the 9 employees shall be assigned to at least one territory, giving 49 assignments in total. [Expected]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg4p17",
+      "kind": "paragraph",
+      "heading": "3.5 Orders",
+      "text": "REQ-ORD-01 Every order shall have a unique order_id . Sample order identifiers run from 10248 to 11077 without gaps. [Enforced] REQ-ORD-02 When set, customer_id , employee_id and ship_via shall reference an existing customer, employee and shipper; an unknown value is rejected with SQLSTATE 23503 . These columns allow NULL, so an order with no customer is accepted, although every sample order has all three. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg5p18",
+      "kind": "paragraph",
+      "heading": "3.5 Orders",
+      "text": "REQ-ORD-03 An order whose shipped_date is NULL has not yet shipped. The sample data contains 21 unshipped orders, so counting shipped_date returns 809 while counting all orders returns 830."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg5p19",
+      "kind": "paragraph",
+      "heading": "3.5 Orders",
+      "text": "REQ-ORD-04 An order is late when its shipped_date is after its required_date . The sample data contains 37 late orders. [Expected] REQ-ORD-05 The shipped date of an order shall not be earlier than its order date. The database does not check this; setting the shipped date of order 10248 to 1990-01-01 is accepted. [Expected] REQ-ORD-06 Every order shall contain at least one order line. The database does not check this; an order header with no lines is accepted. [Expected] REQ-ORD-07 Freight cost shall be positive. Sample freight values range from 0.02 to 1007.64."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg5p20",
+      "kind": "paragraph",
+      "heading": "3.6 Order Details",
+      "text": "REQ-ODT-01 An order line shall be identified by the pair ( order_id , product_id ). Adding product 11 to order 10248 a second time shall fail with SQLSTATE 23505 . [Enforced] REQ-ODT-02 Every order line shall reference an existing order and an existing product. [Enforced] REQ-ODT-03 unit_price , quantity and discount shall all be present. Inserting a line without a discount shall fail with SQLSTATE 23502 . [Enforced] REQ-ODT-04 The discount shall be a fraction between 0 and 1. Sample discounts take only the values 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.1, 0.15, 0.2 and 0.25. The database does not check the range, so a discount of 1.5 is accepted. [Expected] REQ-ODT-05 Quantity shall be a positive whole number. Sample quantities range from 1 to 130. The database does not check the sign, so a quantity of -5 is accepted. [Expected] REQ-ODT-06 The unit price on an order line records the price at the time of sale and may differ from the current price in products . [Expected] REQ-ODT-07 An order shall have between 1 and 25 lines in the sample data. 137 orders have exactly one line. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg5p21",
+      "kind": "paragraph",
+      "heading": "3.7 Shippers and Reference Data",
+      "text": "REQ-SHP-01 The database shall contain 6 shippers. Orders use only shippers 1 (Speedy Express, 249 orders), 2 (United Package, 326 orders) and 3 (Federal Shipping, 255 orders). Shippers 4, 5 and 6 have no orders. [Enforced] REQ-REF-01 The tables customer_demographics and customer_customer_demo shall exist with their keys but contain no rows. [Enforced] REQ-REF-02 The table us_states is reference data with 51 rows and has no foreign key link to any other table. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg5p22",
+      "kind": "paragraph",
+      "heading": "4. Supported SQL Behaviors",
+      "text": "This section states the results that standard queries shall return on the sample data. These are the behaviors a client application relies on."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p23",
+      "kind": "paragraph",
+      "heading": "4.1 Order Totals",
+      "text": "REQ-SQL-01 The value of an order line shall be computed as unit_price * quantity * (1 - discount) . The value of an order is the sum of its lines. [Expected] REQ-SQL-02 Order 10248 shall have 3 lines (products 11, 42 and 72) and a total value of 440.00."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p24",
+      "kind": "paragraph",
+      "heading": "4.1 Order Totals",
+      "text": "REQ-SQL-03 Order 10250 shall have a total value of 1552.60. Its line for product 51 (price 42.4, quantity 35, discount 0.15) is worth 1261.40. [Enforced] REQ-SQL-04 The total value of all order lines shall be 1265793.04 when rounded to 2 decimal places. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6t3r1",
+      "kind": "table_row",
+      "heading": "4.1 Order Totals",
+      "text": "SELECT round(sum(unit_price::numeric * quantity"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6t3r3",
+      "kind": "table_row",
+      "heading": "4.1 Order Totals",
+      "text": "FROM order_details WHERE order_id = 10248; -- 440.00"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p25",
+      "kind": "paragraph",
+      "heading": "4.1 Order Totals",
+      "text": "REQ-SQL-05 The three customers with the highest total order value shall be QUICK (110277.31), ERNSH (104874.98) and SAVEA (104361.95). [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p26",
+      "kind": "paragraph",
+      "heading": "4.2 Joins",
+      "text": "REQ-SQL-06 An inner join from orders to customers shall return all 830 orders, because no order has a NULL customer. [Enforced] REQ-SQL-07 A left join from customers to orders that keeps rows with no matching order shall return exactly FISSA and PARIS . [Enforced] REQ-SQL-08 A self join of employees on reports_to shall return Andrew as the manager of Nancy (employee 1). [Enforced] REQ-SQL-09 An anti join (NOT EXISTS) of shippers against orders shall return shippers 4, 5 and 6."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p27",
+      "kind": "paragraph",
+      "heading": "4.3 Filtering and Aggregation",
+      "text": "REQ-SQL-10 A date range filter on order_date between 1997-01-01 and 1997-12-31 shall return 408 orders. Both ends of BETWEEN are included. [Enforced] REQ-SQL-11 Employee 1 shall have taken 55 orders with an order date in 1997. [Enforced] REQ-SQL-12 Filtering products with unit price BETWEEN 10 AND 20 shall return 29 products."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p28",
+      "kind": "paragraph",
+      "heading": "4.3 Filtering and Aggregation",
+      "text": "REQ-SQL-13 Grouping orders by ship_country shall place USA and Germany first, with 122 orders each. [Enforced] REQ-SQL-14 Counting active Beverages products (category 1, discontinued 0) shall return 9."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg6p29",
+      "kind": "paragraph",
+      "heading": "4.4 NULL Semantics",
+      "text": "REQ-SQL-15 A comparison with NULL using = shall never be true. WHERE ship_region = NULL shall return 0 orders, while WHERE ship_region IS NULL shall return 507. [Enforced] REQ-SQL-16 count(column) shall ignore NULL values. count(ship_region) over orders shall return 323, and 323 plus 507 equals the 830 orders. [Enforced] REQ-SQL-17 Aggregates such as sum and avg shall skip NULL values rather than treat them as zero."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7p30",
+      "kind": "paragraph",
+      "heading": "4.5 Text Matching",
+      "text": "REQ-SQL-18 Equality on text shall be case sensitive: 'Chai' = 'chai' is false. [Enforced] REQ-SQL-19 LIKE shall be case sensitive and ILIKE shall ignore case. On product names, LIKE 'C%' returns 9 rows, LIKE 'c%' returns 0, and ILIKE 'c%' returns 9, because all names start with a capital letter. [Enforced] REQ-SQL-20 Text values shall be stored and returned in UTF8, so names with accents such as Côte"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7p31",
+      "kind": "paragraph",
+      "heading": "4.5 Text Matching",
+      "text": "de Blaye and Thüringer Rostbratwurst keep their characters. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7p32",
+      "kind": "paragraph",
+      "heading": "4.6 Numeric Behavior",
+      "text": "REQ-SQL-21 Prices, discounts and freight are stored as real (single precision floating point). Results of arithmetic on these columns are approximate: 0.1::real * 3 returns 0.30000000447034836 and is not equal to 0.3::real . [Enforced] REQ-SQL-22 Money values shall be cast to numeric and rounded to 2 decimal places before they are compared or reported. [Expected] REQ-SQL-23 Division of two integers shall truncate: 10/4 returns 2, while 10/4.0 returns 2.5."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7p33",
+      "kind": "paragraph",
+      "heading": "4.7 Transactions",
+      "text": "REQ-SQL-24 Every change made inside a transaction that ends with ROLLBACK shall be undone, leaving all row counts as in Table 1. [Enforced] REQ-SQL-25 A statement that fails inside a transaction shall abort the transaction; further statements are rejected with SQLSTATE 25P02 until ROLLBACK. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7p34",
+      "kind": "paragraph",
+      "heading": "5. Integrity Rules and Error Behavior",
+      "text": "executed inside a transaction that was then rolled back."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r2",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Insert category with existing id 1 | Primary key | Error 23505"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r3",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Insert category without an id | NOT NULL on key | Error 23502"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r4",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Insert product with category 99 | Foreign key to categories | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r5",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Delete customer ALFKI | Referenced by orders | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r6",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Delete customer FISSA | None (no orders) | Accepted"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r7",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Change order_id of order 10248 | Referenced by order_details | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r8",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Insert employee reporting to 99 | Self foreign key | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r9",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Delete employee 2 | Referenced by employees and orders | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r10",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Delete region 1 | Referenced by territories | Error 23503"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r11",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Repeat product 11 in order 10248 | Composite primary key | Error 23505"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r12",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Order line without discount | NOT NULL | Error 23502"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r13",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Customer id ABCDEF | varchar(5) length | Error 22001"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg7t4r14",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Quantity 40000 | smallint range | Error 22003"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t5r2",
+      "kind": "table_row",
+      "heading": "5. Integrity Rules and Error Behavior / Table 2 lists the rules the database checks and the error each violation produces. Every case was",
+      "text": "Order id 32768 | smallint range | Error 22003"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8p35",
+      "kind": "paragraph",
+      "heading": "5. Integrity Rules and Error Behavior",
+      "text": "REQ-INT-01 All foreign keys shall use the default NO ACTION behavior. Deleting or changing a referenced row shall be rejected; no delete or update shall cascade to child rows. [Enforced] REQ-INT-02 No table defines a default value or an identity column. Every insert shall supply the key value explicitly. [Enforced] REQ-INT-03 No CHECK constraints are defined. All value range rules in this document marked [Expected] rely on the writing application. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8p36",
+      "kind": "paragraph",
+      "heading": "6.1 Numeric Limits",
+      "text": "REQ-BND-01 Columns of type smallint (all integer identifiers except text keys, plus quantity , units_in_stock , units_on_order and reorder_level ) shall accept values from -32768 to 32767. The values -32768 and 32767 are accepted, while -32769 and 32768 are rejected with SQLSTATE"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8p37",
+      "kind": "paragraph",
+      "heading": "6.1 Numeric Limits",
+      "text": "REQ-BND-02 Arithmetic on two smallint values that exceeds 32767, such as 32767::smallint + 1::smallint , shall fail with \"smallint out of range\". [Enforced] REQ-BND-03 The highest current order id is 11077, so 21690 more orders can be numbered before the smallint limit of 32767 is reached. [Expected]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r1",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "Column | Max length | Example at the limit"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r3",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "categories.category_name | 15 | Dairy Products (14)"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r4",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "employees.first_name | 10 | Values up to 10 characters"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r5",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "employees.extension | 4 | Phone extension digits"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r6",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "products.product_name | 40 | Values up to 40 characters"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8t6r7",
+      "kind": "table_row",
+      "heading": "6.2 Text Length Limits",
+      "text": "customers.country | 15 | Country names up to 15 characters"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg8p38",
+      "kind": "paragraph",
+      "heading": "6.2 Text Length Limits",
+      "text": "REQ-BND-04 On INSERT or UPDATE, a text value one character longer than its column limit shall be rejected with SQLSTATE 22001 and shall not be silently cut. An explicit cast behaves differently: 'ABCDEF'::varchar(5) returns ABCDE without an error. [Enforced] REQ-BND-05 A text value exactly at the column limit shall be accepted and returned unchanged."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9p39",
+      "kind": "paragraph",
+      "heading": "6.3 Date Limits",
+      "text": "REQ-BND-06 Date columns shall reject impossible calendar dates. The value 1997-02-29 is rejected with \"date/time field value out of range\" because 1997 is not a leap year. [Enforced] REQ-BND-07 No sample order has an order date after 1998-05-06. A query for later orders shall return 0 rows. [Enforced]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9p40",
+      "kind": "paragraph",
+      "heading": "6.4 Business Value Limits (not enforced)",
+      "text": "REQ-BND-08 Discount shall be at least 0 and less than 1. The database accepts 1.5, which would produce a negative line value. [Expected] REQ-BND-09 Quantity shall be at least 1. The database accepts 0 and negative values. [Expected] REQ-BND-10 discontinued shall be 0 or 1. Because the column is an integer, the value 5 is accepted. [Expected] REQ-BND-11 Stock counts shall not be negative. 17 products currently have units on order greater than zero. [Expected]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9p41",
+      "kind": "paragraph",
+      "heading": "7. Configuration Options",
+      "text": "The repository provides a Docker Compose file that starts the database and an administration tool. The settings below are the supported configuration."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r2",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "Database image | postgres:latest | Official PostgreSQL server image"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r3",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "POSTGRES_DB | northwind | Name of the created database"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r4",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "POSTGRES_USER | postgres | Superuser account"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r5",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "POSTGRES_PASSWORD | postgres | Password of that account"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r6",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "Host port | 55432 | Mapped to container port 5432"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r7",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "Init script | northwind.sql | Run once when the data volume is empty"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r8",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "pgAdmin port | 5050 | Web administration tool"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r9",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "pgAdmin login | pgadmin4@pgadmin.org | Password postgres"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9t7r10",
+      "kind": "table_row",
+      "heading": "7. Configuration Options",
+      "text": "Data volume | postgresql_data | Keeps data across restarts"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9p42",
+      "kind": "paragraph",
+      "heading": "7. Configuration Options",
+      "text": "REQ-CFG-01 Clients outside Docker shall connect on host port 55432 to database northwind as user"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg9p43",
+      "kind": "paragraph",
+      "heading": "7. Configuration Options",
+      "text": "REQ-CFG-02 The init script shall run only when the data volume is empty. Restarting the container shall keep existing data; to reload the sample data the volume must be removed. [Expected] REQ-CFG-03 The default session settings shall be: transaction isolation read committed , date style ISO, MDY , and server encoding UTF8 . Dates are therefore returned as YYYY-MM-DD. [Enforced] REQ-CFG-04 The default credentials are for local development only and shall be changed before any shared or networked deployment. [Expected] REQ-CFG-05 Because postgres:latest changes over time, a deployment that needs repeatable results shall pin the image to a fixed major version such as 16. [Expected]"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg10p44",
+      "kind": "paragraph",
+      "heading": "8. User Visible Semantics",
+      "text": "This section explains what stored values mean to a person reading reports or screens built on the database. REQ-SEM-01 Product status shall be displayed as \"Discontinued\" when discontinued is 1 and \"Active\" when it is 0. Discontinued products remain visible in past orders. [Expected] REQ-SEM-02 An order with a NULL shipped_date shall be displayed as \"Not shipped\". It shall not be displayed as shipped on an empty or default date. [Expected] REQ-SEM-03 An order shipped after its required date shall be displayed as \"Late\". [Expected] REQ-SEM-04 A NULL ship_region , region or fax means the value does not apply or is unknown. It shall be displayed as blank, never as the text \"NULL\". 60 customers have no region and 22 have no fax. [Expected] REQ-SEM-05 The employee with a NULL reports_to is the top of the organization chart. Reports that list managers shall show \"None\" for this employee. [Expected] REQ-SEM-06 A product shall be shown as \"Out of stock\" when units_in_stock is 0 and as \"Reorder\" when units_in_stock is below reorder_level . One active product is out of stock."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg10p45",
+      "kind": "paragraph",
+      "heading": "8. User Visible Semantics",
+      "text": "REQ-SEM-07 Money amounts shall be displayed rounded to 2 decimal places. No currency is stored; all amounts are in one implied currency. [Expected] REQ-SEM-08 Delivery address fields on an order ( ship_name , ship_address , ship_city , ship_country ) describe where the order was sent and may differ from the customer address."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg10p46",
+      "kind": "paragraph",
+      "heading": "9. Known Gaps",
+      "text": "The following rules are part of the intended business behavior but are not enforced by the schema. Tests that write invalid data will be accepted by the database, so a test expecting an error for these cases will fail by design. • Discount range, quantity sign and the 0 or 1 value of discontinued (Section 6.4). • Date order between order_date , required_date and shipped_date (REQ-ORD-05). • Orders with no lines (REQ-ORD-06) and upper case customer identifiers (REQ-CUS-03). • No identity columns: callers must choose new key values themselves (REQ-INT-02). • Money stored as single precision real , which can produce small rounding differences (REQ-SQL-21)."
+    },
+    {
+      "chunk_id": "northwind_requirements#pg10t8r1",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "Area | Enforced | Expected | Identifiers"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg11t9r1",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "Area | Enforced | Expected | Identifiers"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg11t9r2",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "Order details | 4 | 3 | REQ-ODT-01 to 07"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg11t9r3",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "Shippers and reference | 3 | 0 | REQ-SHP-01, REQ-REF-01 to 02"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg11t9r4",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "SQL behaviors | 23 | 2 | REQ-SQL-01 to 25"
+    },
+    {
+      "chunk_id": "northwind_requirements#pg11t9r7",
+      "kind": "table_row",
+      "heading": "Appendix A. Requirement Summary",
+      "text": "Configuration | 1 | 4 | REQ-CFG-01 to 05"
+    }
+  ]
+}

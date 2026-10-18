@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+
+# Secrets
+.env
+
+# UI uploads and Phase 1 output (created at runtime)
+runs/
+
+# macOS
+.DS_Store

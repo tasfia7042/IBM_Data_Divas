@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocTest</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <h1>DocTest</h1>
+  <div class="topbar-actions">
+    <button type="button" class="btn-secondary" id="btn-demo">Load demo</button>
+    <button type="button" class="btn-secondary" id="btn-reset">Reset</button>
+    <span class="status" id="status" aria-live="polite">status: loading</span>
+  </div>
+</header>
+<div class="notice" id="notice" hidden>Demo data: scenarios and test cases loaded from <code>ui/demo/</code>.</div>
+
+<main class="columns">
+  <!-- 1. Inputs -->
+  <section class="col" aria-labelledby="h-inputs">
+    <h2 id="h-inputs"><span class="step">1</span> Inputs</h2>
+    <div class="col-body">
+      <div class="dropzone" id="dropzone" tabindex="0">
+        <p><strong>Drop files here</strong></p>
+        <p class="muted small">.txt and .csv are read as requirements; .pdf, .md and .html as reference documents. Up to 20 MB each.</p>
+        <button type="button" class="btn-secondary" id="btn-choose">Choose files</button>
+        <input type="file" id="file-input" multiple accept=".txt,.pdf,.csv,.md,.html,.htm" hidden>
+      </div>
+      <ul class="list" id="file-list"></ul>
+      <p class="empty" id="files-empty">No files uploaded.</p>
+    </div>
+    <div class="col-foot">
+      <p class="msg" id="msg-phase1" role="alert"></p>
+      <button type="button" class="btn-primary" id="btn-phase1" disabled>Run Phase 1</button>
+      <p class="progress-msg" id="prog-phase1" hidden></p>
+    </div>
+  </section>
+
+  <!-- 2. Scenarios (Phase 1) -->
+  <section class="col" aria-labelledby="h-scen">
+    <h2 id="h-scen"><span class="step">2</span> Scenarios <span class="phase">Phase 1</span> <span class="count" id="scen-count"></span></h2>
+    <input type="search" class="filter" id="scen-filter" placeholder="Filter scenarios" aria-label="Filter scenarios">
+    <div class="col-body" id="scen-body">
+      <ul class="list" id="scen-list"></ul>
+      <p class="empty" id="scen-empty">No scenarios yet. Upload files and run Phase 1.</p>
+    </div>
+    <div class="col-foot">
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" id="btn-copy-scen" disabled>Copy all</button>
+        <button type="button" class="btn-secondary" id="btn-dl-scen" disabled>Download</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Test cases (Phase 2) -->
+  <section class="col" aria-labelledby="h-tests">
+    <h2 id="h-tests"><span class="step">3</span> Test cases <span class="phase">Phase 2</span> <span class="count" id="test-count"></span></h2>
+    <select class="filter" id="cat-filter" aria-label="Filter by category"><option value="">All categories</option></select>
+    <div class="col-body" id="test-body">
+      <p class="msg" id="tests-error" role="alert"></p>
+      <ul class="list" id="test-list"></ul>
+      <p class="empty" id="test-empty">No test cases loaded.</p>
+    </div>
+    <div class="col-foot">
+      <p class="msg" id="msg-phase2" role="alert"></p>
+      <div class="btn-row">
+        <button type="button" class="btn-primary" id="btn-phase2" disabled>Run Phase 2</button>
+        <button type="button" class="btn-secondary" id="btn-reload">Reload file</button>
+      </div>
+      <p class="progress-msg" id="prog-phase2" hidden></p>
+      <div class="btn-row">
+        <button type="button" class="btn-secondary" id="btn-copy-tests" disabled>Copy all</button>
+        <button type="button" class="btn-secondary" id="btn-dl-tests" disabled>Download</button>
+      </div>
+      <p class="muted small" id="tests-path"></p>
+    </div>
+  </section>
+</main>
+
+<footer class="summary" id="summary" aria-live="polite">–</footer>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

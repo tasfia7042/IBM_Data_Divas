@@ -1,0 +1,13 @@
+llm:
+  base_url: http://localhost:11434/v1   # local Ollama
+  api_key: ollama                       # Hugging Face instead: base_url https://router.huggingface.co/v1, api_key env:HF_TOKEN
+  model: qwen2.5:7b-instruct
+  temperature: 0
+  timeout_s: 300
+docs:
+  url: https://www.postgresql.org/docs/16/functions-json.html   # used by fetch, and to name chunk ids
+  scenario_prefix: json                 # scenario ids look like json-0001
+limits:
+  max_requirements: 60
+  context_chunks: 2                     # BM25 neighbours added to each requirement's own chunk
+  max_scenarios_per_requirement: 10     # requirements .txt without "(N scenarios)": one per behavior found, at most this

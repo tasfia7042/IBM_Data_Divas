@@ -1,0 +1,375 @@
+[
+  {
+    "scenario_id": "req-0001",
+    "category": "normal",
+    "test": {
+      "setup_sql": [],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT COUNT(*) FROM orders INNER JOIN customers ON orders.customer_id = customers.customer_id;",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "count"
+            ],
+            "rows": [
+              [
+                830
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0002",
+    "category": "normal",
+    "test": {
+      "setup_sql": [],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT COUNT(*) AS n FROM customers WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                2
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT COUNT(*) AS n FROM orders WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                1
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT customers.customer_id, customers.company_name, COUNT(orders.order_id) AS order_count FROM customers INNER JOIN orders ON customers.customer_id = orders.customer_id WHERE customers.customer_id IN ('TQ1', 'TQ2') GROUP BY customers.customer_id, customers.company_name",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Company1",
+                1
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0003",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer1'), ('TQ2', 'TEST_Customer2')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT count(*) AS n FROM customers WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                2
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT * FROM (SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name) q WHERE q.customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer1",
+                0
+              ],
+              [
+                "TQ2",
+                "TEST_Customer2",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0004",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer1'), ('TQ2', 'TEST_Customer2')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT count(*) AS n FROM customers WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                2
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT count(*) AS n FROM orders WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id WHERE c.customer_id IN ('TQ1', 'TQ2') GROUP BY c.customer_id, c.company_name",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer1",
+                0
+              ],
+              [
+                "TQ2",
+                "TEST_Customer2",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0005",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0006",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer1')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT customers.customer_id, customers.company_name, COUNT(orders.order_id) AS order_count FROM customers LEFT JOIN orders ON customers.customer_id = orders.customer_id WHERE customers.customer_id = 'TQ1' GROUP BY customers.customer_id, customers.company_name",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer1",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT customers.customer_id, customers.company_name, COUNT(orders.order_id) AS order_count FROM customers LEFT JOIN orders ON customers.customer_id = orders.customer_id WHERE customers.customer_id = 'TQ2' GROUP BY customers.customer_id, customers.company_name",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0007",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer1'), ('TQ2', 'TEST_Customer2')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT count(*) AS n FROM customers WHERE customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                2
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT * FROM (SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name) q WHERE q.customer_id IN ('TQ1', 'TQ2')",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer1",
+                0
+              ],
+              [
+                "TQ2",
+                "TEST_Customer2",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  },
+  {
+    "scenario_id": "req-0008",
+    "category": "normal",
+    "test": {
+      "setup_sql": [
+        "INSERT INTO customers (customer_id, company_name) VALUES ('TQ1', 'TEST_Customer1')"
+      ],
+      "config_sql": [],
+      "steps": [
+        {
+          "sql": "SELECT COUNT(*) AS n FROM customers WHERE customer_id = 'TQ1'",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "n"
+            ],
+            "rows": [
+              [
+                1
+              ]
+            ],
+            "ordered": false
+          }
+        },
+        {
+          "sql": "SELECT * FROM (SELECT c.customer_id, c.company_name, COUNT(o.order_id) AS order_count FROM customers c LEFT JOIN orders o ON c.customer_id = o.customer_id GROUP BY c.customer_id, c.company_name) q WHERE q.customer_id = 'TQ1'",
+          "expect": {
+            "type": "rows",
+            "columns": [
+              "customer_id",
+              "company_name",
+              "order_count"
+            ],
+            "rows": [
+              [
+                "TQ1",
+                "TEST_Customer1",
+                0
+              ]
+            ],
+            "ordered": false
+          }
+        }
+      ]
+    }
+  }
+]

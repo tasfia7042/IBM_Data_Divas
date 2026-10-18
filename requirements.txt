@@ -1,0 +1,5 @@
+# DocTest pipeline (Phase 1) + web UI. All pure Python (works on IBM LinuxONE / s390x without compiling).
+# Add the DBMS_testgen generator's own requirements here when its code is added.
+-e ./doctest
+flask>=3.0
+pypdf>=4.0
